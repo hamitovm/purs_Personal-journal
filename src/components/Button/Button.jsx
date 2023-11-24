@@ -1,10 +1,12 @@
 import './Button.css';
 
-function App() {
+function Button({ text, onClick}) {
 
 	return (
-		<button className={'button accent'}>Button</button>
+		<button className={'button accent'}
+			onClick={onClick}
+		>{ text}</button>
 	);
 }
 
-export default App;
+export default Button;
