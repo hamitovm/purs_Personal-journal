@@ -1,71 +1,118 @@
 import styles from './JournalForm.module.css';
 import Button from '../Button/Button.jsx';
-import {useState} from 'react';
+import {useEffect, useReducer} from 'react';
 import cn from 'classnames';
+import {formReducer, INITIAL_STATE} from './JournalForm.state.js';
+
+// const INITIAL_FORM_VALID_STATE = {
+// 	title: true,
+// 	post: true,
+// 	date: true
+// };
 
 const JournalForm = ({onSubmit}) => {
-	const [formValidState, setFormValidState] = useState({
-		title: true,
-		text: true,
-		date: true
-	});
+	// const [formValidState, setFormValidState] = useState(INITIAL_FORM_VALID_STATE);
+	const [formState, dispatchForm] = useReducer(formReducer, INITIAL_STATE);
+	const {isValid, isFormReadyToSubmit, values} = formState;
+
+	useEffect(()=> {
+		let timerId;
+		if (!isValid.title || !isValid.post || !isValid.date) {
+			timerId = setTimeout(()=> {
+				dispatchForm({type: 'RESET_VALIDITY'});
+			}, 2000);
+		}
+		return () => {
+			clearTimeout(timerId);
+		};
+	}, [isValid]);
+
+	useEffect(() => {
+		if (isFormReadyToSubmit) {
+			onSubmit(values);
+			dispatchForm({
+				type: 'CLEAR'});
+		}
+	}, [isFormReadyToSubmit, onSubmit, values]);
+
+	const onChange = (e) => {
+		dispatchForm({
+			type: 'SET_VALUE',
+			payload: {[e.target.name]: e.target.value}
+		});
+	};
 
 	const addJournalItem = (e) => {
 		e.preventDefault();
 		const formData = new FormData(e.target);
 		const formProps = Object.fromEntries(formData);
-		let isFormValid = true;
-		if (!formProps.title?.trim().length) {
-			setFormValidState(state => ({...state, title: false}));
-			isFormValid = false;
-		} else {
-			setFormValidState(state => ({...state, title: true}));
-		}
-		if (!formProps.text?.trim().length) {
-			setFormValidState(state => ({...state, text: false}));
-			isFormValid = false;
-		} else {
-			setFormValidState(state => ({...state, text: true}));
-		}
-		if (!formProps.date) {
-			setFormValidState(state => ({...state, date: false}));
-			isFormValid = false;
-		} else {
-			setFormValidState(state => ({...state, date: true}));
-		}
-		if (!isFormValid) {
-			return;
-		}
-		onSubmit(formProps);
+		dispatchForm({
+			type: 'SUBMIT',
+			payload: formProps});
 	};
 
 	return (
 		<form className={styles['journal-form']} onSubmit={addJournalItem}>
-			<input
-				className={cn( styles.input,
-					{
-						[styles.invalid] : !formValidState.title
-					})}
-				type="text"
-				name={'title'}
-			/>
-			<input
-				className={`${styles.input} ${formValidState.date ? '' : styles.invalid}`}
-				type="date"
-				name={'date'}
-			/>
-			<input
-				className={styles.input}
-				type="text"
-				name={'tag'}
-			/>
+			<div>
+				<input
+					className={cn( styles.input, styles['journal-form__title-input'],
+						{
+							[styles.invalid] : !isValid.title
+						})}
+					value={values.title}
+					onChange={onChange}
+					placeholder={'Введите название'}
+					type="text"
+					name={'title'}
+				/>
+			</div>
+			<div className={styles['journal-form__form-wrapper']}>
+				<div className={styles['journal-form__date-input-wrapper']}>
+					<label htmlFor="date">
+						<img src="../../../public/calendar-icon.svg" alt="Calendar icon"/>
+						<span>Дата</span>
+					</label>
+					<input
+						className={cn( styles.input, styles['journal-form__date-input'],
+							{
+								[styles.invalid] : !isValid.date
+							})}
+						value={values.date}
+						onChange={onChange}
+						placeholder={'Введите дату'}
+						type="date"
+						name={'date'}
+						id={'date'}
+					/>
+				</div>
+				<div className={styles['journal-form__tag-input-wrapper']}>
+					<label htmlFor="tag">
+						<img src="../../../public/folder-icon.svg" alt="Calendar icon"/>
+						<span>Метки</span>
+					</label>
+					<input
+						className={cn(styles.input, styles['journal-form__tag-input'])}
+						value={values.tag}
+						onChange={onChange}
+						placeholder={'Введите тег'}
+						type="text"
+						name={'tag'}
+						id={'tag'}
+					/>
+				</div>
+			</div>
 			<textarea
-				className={`${styles.input} ${formValidState.text ? '' : styles.invalid}`}
-				name="text" id=""
+				className={cn( styles.input, styles['journal-form__post-input'],
+					{
+						[styles.invalid] : !isValid.post
+					})}
+				value={values.post}
+				onChange={onChange}
+				name="post" id=""
 				cols="30"
 				rows="10">
 			</textarea>
-			<Button text={'Сохранить'}/>
+			<Button  className={styles['journal-form__button']} text={'Сохранить'}/>
 		</form>
 	);
 };
