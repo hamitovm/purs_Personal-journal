@@ -44,11 +44,8 @@ const JournalForm = ({onSubmit}) => {
 
 	const addJournalItem = (e) => {
 		e.preventDefault();
-		const formData = new FormData(e.target);
-		const formProps = Object.fromEntries(formData);
 		dispatchForm({
-			type: 'SUBMIT',
-			payload: formProps});
+			type: 'SUBMIT'});
 	};
 
 	return (

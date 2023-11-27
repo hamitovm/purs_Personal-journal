@@ -31,9 +31,9 @@ export const formReducer = (state, action) => {
 	case 'CLEAR':
 		return INITIAL_STATE;
 	case 'SUBMIT': {
-		const postValidity = action.payload.post.trim().length;
-		const titleValidity = action.payload.title.trim().length;
-		const dateValidity = action.payload.date;
+		const postValidity = state.values.post.trim().length;
+		const titleValidity = state.values.title.trim().length;
+		const dateValidity = state.values.date;
 		return {
 			...state,
 			isValid: {
