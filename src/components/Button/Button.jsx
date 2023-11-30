@@ -1,11 +1,13 @@
 import styles from './Button.module.css';
 import cn from 'classnames';
 
-function Button({ text, onClick, className}) {
+function Button({ children, onClick, className }) {
 	return (
 		<button className={cn(styles.button, styles.accent, className)}
 			onClick={onClick}
-		>{ text}</button>
+		>
+			{ children }
+		</button>
 	);
 }
 

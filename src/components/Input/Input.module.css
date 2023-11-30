@@ -1,0 +1,21 @@
+.input {
+    width: 100%;
+    background-color: transparent;
+    border: none;
+    font-weight: 600;
+}
+
+.input-title {
+    width: 85%;
+    font-size: 32px;
+    line-height: 40px;
+    color: rgba(255, 255, 255, 1);
+}
+
+
+.invalid {
+    border-bottom: 1px solid red;
+    background: rgb(87, 51, 51);
+}
+
+

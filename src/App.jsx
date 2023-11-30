@@ -5,66 +5,75 @@ import JournalList from './components/JournalList/JournalList.jsx';
 import Header from './components/Header/Header.jsx';
 import JournalAddButton from './components/JournalAddButton/JournalAddButton.jsx';
 import JournalForm from './components/JournalForm/JournalForm.jsx';
-import {useEffect, useState} from 'react';
+import {useLocalstorage} from './hooks/use-localstorage.hook.js';
+import {UserContext, UserContextProvider} from './context/user.context.jsx';
+import { useState, useContext } from 'react';
 
-// const INITIAL_DATA = [
-// 	// {
-// 	// 	id: 1,
-// 	// 	title: 'Подготовка к обновлению курсов',
-// 	// 	date: new Date(),
-// 	// 	text: 'Горные походы открывают удивительные природные ландшафты'
-// 	// },
-// 	// {
-// 	// 	id: 2,
-// 	// 	title: 'Поход в горы',
-// 	// 	date: new Date(),
-// 	// 	text: 'Думал, что очень много времени'
-// 	// }
-// ];
-
+function mapItems(items) {
+	if (!items) {
+		return [];
+	}
+	return items
+		.map(item => ({
+			...item,
+			date: new Date(item.date)
+		}));
+}
 
 function App() {
-	const [items, setItems] = useState([]);
+	const [items, saveItems] = useLocalstorage('data');
+	const [activePost, setActivePost] = useState(null);
+	const { userId } = useContext(UserContext);
 
-	useEffect(()=> {
-		const data = JSON.parse(localStorage.getItem('data'));
-		if (data) {
-			console.log(data);
-			setItems(data.map(item => ({
-				...item,
-				date: new Date(item.date)
-			})));
-		}
-	}, []);
+	const addItem = (newItem) => {
+		const newItems = [...mapItems(items)
+			.filter(el => el.id !== newItem.id),
+		{
+			...newItem,
+			date: new Date(newItem.date),
+			id: newItem.id ? newItem.id : items?.length > 0 ? Math.max( ...items.map(el => el.id)) + 1 : 1
+		}];
+		saveItems(newItems);
+	};
 
-	useEffect(()=> {
-		if (items.length) {
-			localStorage.setItem('data', JSON.stringify(items));
-		}
-	}, [items]);
+	const selectActivePost = (post) => {
+		setActivePost(post);
+	};
 
-	const addItem = (item) => {
+	const deletePost = (id) => {
+		saveItems([...items.filter(el => el.id !== id)]);
+	};
 
-		setItems(oldItems => [...oldItems, {
-			...item,
-			date: new Date(item.date),
-			id: oldItems.length > 0 ? Math.max( ...oldItems.map(el => el.id)) + 1 : 1
-		}]);
+
+
+	const clearForm = () => {
+		setActivePost(null);
 	};
 
 
 
 	return (
-		<div className={'app'}>
-			<LeftPanel>
-				<Header/>
-				<JournalAddButton/>
-				<JournalList items={items}/>
-			</LeftPanel>
-			<Body>
-				<JournalForm onSubmit={addItem}/>
-			</Body>
-		</div>
+		<UserContextProvider>
+			<div className={'app'}>
+				<LeftPanel>
+					<Header/>
+					<JournalAddButton clearForm={clearForm}/>
+					<JournalList
+						selectActivePost={selectActivePost}
+						items={mapItems(items, userId)}
+					/>
+				</LeftPanel>
+				<Body>
+					<JournalForm
+						activePost={activePost}
+						selectActivePost={selectActivePost}
+						deletePost={deletePost}
+						onSubmit={addItem}/>
+
+				</Body>
+			</div>
+		</UserContextProvider>
+
 	);
 }
 

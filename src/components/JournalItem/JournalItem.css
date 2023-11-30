@@ -1,11 +1,13 @@
 .journal-item {
-	padding: 20px;
-	border-radius: 3px;
-	color: #FFF;
-	background: rgba(255, 255, 255, 0.03);
+	position: relative;
+	/*padding: 20px;*/
+	/*border-radius: 3px;*/
+	/*color: #FFF;*/
+	/*background: rgba(255, 255, 255, 0.03);*/
 }
 
 .journal-item__header {
+	margin: 0 0 10px;
 	font-size: 18px;
 	font-style: normal;
 	font-weight: 600;
@@ -30,5 +32,14 @@
 .journal-item__body {
 	display: flex;
 	gap: 10px;
+}
 
+.journal-item__delete-button {
+	position: absolute;
+	right: -50px;
+	top: 0;
+	border: 2px solid #2d2d2d;
+	border-radius: 3px;
+	background-color: transparent;
+	cursor: pointer;
 }

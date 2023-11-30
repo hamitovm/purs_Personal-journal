@@ -21,12 +21,22 @@ export const formReducer = (state, action) => {
 			isValid: INITIAL_STATE.isValid
 		};
 	case 'SET_VALUE':
+		console.log(action.payload);
 		return {
 			...state,
 			values: {
 				...state.values,
 				...action.payload
 			}
+		};
+	case 'SET_SELECTED_POST':
+		return {
+			...state,
+			isvalid: INITIAL_STATE.isValid,
+			values: {
+				...action.payload
+			},
+			isFormReadyToSubmit: false
 		};
 	case 'CLEAR':
 		return INITIAL_STATE;
